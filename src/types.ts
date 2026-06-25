@@ -58,11 +58,29 @@ export interface Day {
   activities: ActivityEntry[]
 }
 
+export interface PackingItem {
+  id: string
+  name: string
+  checked: boolean
+}
+
+export interface PackingCategory {
+  id: string
+  name: string
+  items: PackingItem[]
+}
+
+export interface PackingList {
+  items: PackingItem[]
+  categories: PackingCategory[]
+}
+
 export interface Trip {
   name: string
   description: string
   days: Day[]
   activeDayId: string | null
+  packingList: PackingList
 }
 
 export const PLACE_TYPES: PlaceType[] = [
