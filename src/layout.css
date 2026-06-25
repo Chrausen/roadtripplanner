@@ -1,0 +1,378 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.25rem 1.5rem 2rem;
+  overflow-y: auto;
+}
+
+.empty-state {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* Day content: route/places/activities + map. Stacked by default (mobile/tablet/narrow desktop). */
+.day-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.day-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.day-map-pane {
+  min-width: 0;
+}
+
+/* Wide viewports (desktop with enough horizontal room): map moves to the right column. */
+@media (min-width: 1100px) {
+  .day-content {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .day-sections {
+    flex: 1 1 55%;
+    min-width: 0;
+  }
+
+  .day-map-pane {
+    flex: 1 1 45%;
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+/* Trip header */
+.trip-header {
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 2px solid var(--rule-line);
+}
+
+.trip-header-view {
+  cursor: pointer;
+}
+
+.trip-description {
+  color: var(--ink-soft);
+  max-width: 60ch;
+}
+
+.trip-edit-btn {
+  margin-top: 0.25rem;
+}
+
+.trip-header-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 40rem;
+}
+
+.trip-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Day nav (sidebar on desktop, horizontal strip on mobile) */
+.day-nav {
+  background: var(--paper-dark);
+  border-right: 2px solid var(--rule-line);
+  padding: 1rem;
+  width: 280px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.day-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.day-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.day-item-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  background: var(--paper-contrast-text);
+  color: var(--ink);
+  border: 1px solid var(--ink-soft);
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+}
+
+.day-item.active .day-item-btn {
+  background: var(--brand-dark);
+  color: var(--paper-contrast-text);
+  border-color: var(--brand-dark);
+}
+
+.day-number {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+.day-title-input {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 100%;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.day-item.active .day-title-input {
+  color: var(--paper-contrast-text);
+}
+
+.day-item.active .day-title-input::placeholder {
+  color: rgba(251, 244, 227, 0.7);
+}
+
+.day-delete-btn {
+  padding: 0.4em 0.6em;
+}
+
+.day-add-btn {
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .app-body {
+    flex-direction: column;
+  }
+
+  .day-nav {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--rule-line);
+  }
+
+  .day-list {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+
+  .day-item {
+    flex-shrink: 0;
+  }
+
+  .day-item-btn {
+    min-width: 140px;
+  }
+
+  .day-add-btn {
+    width: auto;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Cards / sections */
+.card {
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  box-shadow: 1px 2px 0 rgba(44, 33, 19, 0.08);
+}
+
+.card h2 {
+  font-size: 1.3rem;
+  border-bottom: 2px dashed var(--rule-line);
+  padding-bottom: 0.3rem;
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .route-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.entry-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.entry-card {
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--paper);
+}
+
+.entry-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.entry-row input[type='text'],
+.entry-row input:not([type]) {
+  flex: 1 1 160px;
+}
+
+/* Coordinate picker */
+.coord-picker-current {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.coord-search-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.coord-results {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.coord-result-btn {
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: normal;
+}
+
+.coord-hint {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 0.4rem 0 0;
+}
+
+/* Map */
+.day-map-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.map-hint {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.add-pin-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+.day-map {
+  height: 480px;
+  width: 100%;
+  border: 2px solid var(--ink-soft);
+  border-radius: 6px;
+}
+
+.pin-dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-contrast-text);
+  box-shadow: 0 0 0 1px rgba(44, 33, 19, 0.6);
+}
+
+.endpoint-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--margin-red);
+  color: var(--paper-contrast-text);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 2px solid var(--paper-contrast-text);
+}
+
+.route-label {
+  font-size: 0.7rem !important;
+  background: var(--paper-contrast-text) !important;
+  border: 1px solid var(--ink-soft) !important;
+  color: var(--ink) !important;
+}
+
+.route-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.route-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.route-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  display: inline-block;
+}
