@@ -38,29 +38,24 @@ export interface ActivityEntry {
   coords: Coordinates | null
 }
 
-export interface RouteSegment {
+export interface RouteEntry {
   id: string
-  start: Coordinates
-  end: Coordinates
-  geometry: Coordinates[]
-  durationSeconds: number
-  distanceKm: number
-}
-
-export interface DayRoute {
   from: string
   to: string
-  distanceKm: number | null
+  fromCoords: Coordinates | null
+  toCoords: Coordinates | null
   notes: string
+  geometry: Coordinates[]
+  durationSeconds: number | null
+  distanceKm: number | null
 }
 
 export interface Day {
   id: string
   title: string
-  route: DayRoute
+  routes: RouteEntry[]
   places: Place[]
   activities: ActivityEntry[]
-  mapRoutes: RouteSegment[]
 }
 
 export interface Trip {

@@ -9,7 +9,7 @@ export function ActivitiesSection({ day }: { day: Day }) {
 
   return (
     <section className="card">
-      <h2>Activities &amp; Meals</h2>
+      <h2>Meals</h2>
       <ul className="entry-list">
         {day.activities.map((activity) => (
           <li key={activity.id} className="entry-card">
@@ -78,7 +78,7 @@ export function ActivitiesSection({ day }: { day: Day }) {
           })
         }
       >
-        + Add activity / meal
+        + Add meal
       </button>
     </section>
   )

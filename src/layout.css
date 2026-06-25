@@ -5,12 +5,6 @@
   min-height: 0;
 }
 
-.app-body {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
 .app-main {
   flex: 1;
   min-width: 0;
@@ -23,7 +17,7 @@
   color: var(--ink-soft);
 }
 
-/* Day content: route/places/activities + map. Stacked by default (mobile/tablet/narrow desktop). */
+/* Day content: route/places/meals + map. Stacked by default (mobile/tablet/narrow desktop). */
 .day-content {
   display: flex;
   flex-direction: column;
@@ -91,13 +85,38 @@
   gap: 0.5rem;
 }
 
-/* Day nav (sidebar on desktop, horizontal strip on mobile) */
+/* Day nav: collapsible burger-style dropdown, same pattern on desktop and mobile */
 .day-nav {
+  position: relative;
   background: var(--paper-dark);
-  border-right: 2px solid var(--rule-line);
+  border-bottom: 2px solid var(--rule-line);
+  padding: 0.6rem 1.25rem;
+}
+
+.day-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.burger-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.day-nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 1.25rem;
+  z-index: 20;
+  margin-top: 0.4rem;
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--ink-soft);
+  border-radius: 6px;
+  box-shadow: 2px 4px 10px rgba(44, 33, 19, 0.25);
   padding: 1rem;
-  width: 280px;
-  flex-shrink: 0;
+  width: min(320px, calc(100vw - 2.5rem));
+  max-height: 70vh;
   overflow-y: auto;
 }
 
@@ -122,11 +141,12 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.2rem;
-  background: var(--paper-contrast-text);
+  background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--ink-soft);
   text-align: left;
   padding: 0.5rem 0.7rem;
+  min-width: 0;
 }
 
 .day-item.active .day-item-btn {
@@ -165,37 +185,6 @@
   width: 100%;
 }
 
-@media (max-width: 800px) {
-  .app-body {
-    flex-direction: column;
-  }
-
-  .day-nav {
-    width: 100%;
-    border-right: none;
-    border-bottom: 2px solid var(--rule-line);
-  }
-
-  .day-list {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 0.5rem;
-  }
-
-  .day-item {
-    flex-shrink: 0;
-  }
-
-  .day-item-btn {
-    min-width: 140px;
-  }
-
-  .day-add-btn {
-    width: auto;
-    margin-top: 0.5rem;
-  }
-}
-
 /* Cards / sections */
 .card {
   background: var(--paper-contrast-text);
@@ -213,7 +202,7 @@
 
 .route-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 140px;
+  grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -224,6 +213,78 @@
   }
 }
 
+/* Route cards */
+.route-card-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.route-card {
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  padding: 0.75rem;
+  background: var(--paper);
+}
+
+.route-card-collapsed {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.route-preview {
+  flex-shrink: 0;
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--rule-line);
+  border-radius: 4px;
+}
+
+.route-preview-empty {
+  width: 120px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: var(--ink-soft);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.route-card-summary {
+  flex: 1;
+  min-width: 160px;
+}
+
+.route-card-meta {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.route-card-notes {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+}
+
+.route-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.route-card-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Entry lists (places / meals) */
 .entry-list {
   list-style: none;
   margin: 0 0 0.75rem;
@@ -252,6 +313,41 @@
 .entry-row input[type='text'],
 .entry-row input:not([type]) {
   flex: 1 1 160px;
+}
+
+/* Address search (Route From/To) */
+.address-search {
+  position: relative;
+}
+
+.address-resolved {
+  border-color: var(--accent) !important;
+}
+
+.address-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--ink-soft);
+  border-radius: 4px;
+  box-shadow: 1px 3px 8px rgba(44, 33, 19, 0.2);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.address-suggestion-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: normal;
+  border-radius: 0;
 }
 
 /* Coordinate picker */
@@ -353,26 +449,4 @@
   background: var(--paper-contrast-text) !important;
   border: 1px solid var(--ink-soft) !important;
   color: var(--ink) !important;
-}
-
-.route-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.route-list-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.route-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-  display: inline-block;
 }
