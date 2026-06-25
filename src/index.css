@@ -1,0 +1,182 @@
+:root {
+  --paper: #f3e9d2;
+  --paper-dark: #e8dab3;
+  --rule-line: rgba(90, 62, 40, 0.18);
+  --margin-red: #b23b3b;
+  --ink: #2c2113;
+  --ink-soft: #4a3a26;
+  --brand: #8a5a3c;
+  --brand-dark: #6b4329;
+  --accent: #2f6b52;
+  --danger: #a23b2e;
+  --danger-dark: #7e2c22;
+  --paper-contrast-text: #fbf4e3;
+
+  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      var(--rule-line) 28px
+    ),
+    linear-gradient(
+      to right,
+      transparent 54px,
+      var(--margin-red) 55px,
+      transparent 57px
+    );
+  background-attachment: local;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+p {
+  margin: 0 0 0.6em;
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--ink-soft);
+  border-radius: 4px;
+  padding: 0.4em 0.6em;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.25em;
+}
+
+button {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--brand-dark);
+  outline-offset: 2px;
+}
+
+/* All button variants meet WCAG AA contrast (>= 4.5:1) against their fill. */
+.btn-primary {
+  background-color: var(--brand-dark);
+  color: var(--paper-contrast-text);
+  border-color: var(--brand-dark);
+}
+.btn-primary:hover {
+  background-color: #582f1a;
+}
+
+.btn-secondary {
+  background-color: var(--paper-contrast-text);
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+.btn-secondary:hover {
+  background-color: #f0e6c8;
+}
+
+.btn-danger {
+  background-color: var(--danger-dark);
+  color: var(--paper-contrast-text);
+  border-color: var(--danger-dark);
+}
+.btn-danger:hover {
+  background-color: #5e2018;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--ink-soft);
+}
+.btn-ghost:hover {
+  background: rgba(90, 62, 40, 0.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--brand-dark);
+  color: var(--brand-dark);
+  border-radius: 3px;
+  padding: 0.15em 0.5em;
+  transform: rotate(-2deg);
+}
+
+.dashed {
+  border-bottom: 2px dashed var(--ink-soft);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
