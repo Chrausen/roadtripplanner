@@ -6,6 +6,7 @@ import type {
   Day,
   Place,
   PlaceType,
+  PackingList,
   RouteEntry,
   Trip,
 } from './types'
@@ -25,6 +26,10 @@ function makeDay(): Day {
   }
 }
 
+function defaultPackingList(): PackingList {
+  return { items: [], categories: [] }
+}
+
 function defaultTrip(): Trip {
   const day = makeDay()
   return {
@@ -32,6 +37,7 @@ function defaultTrip(): Trip {
     description: '',
     days: [day],
     activeDayId: day.id,
+    packingList: defaultPackingList(),
   }
 }
 
@@ -43,6 +49,7 @@ function normalizeTrip(trip: Trip): Trip {
       if (Array.isArray(d.routes)) return day
       return { ...day, routes: [] }
     }),
+    packingList: trip.packingList ?? defaultPackingList(),
   }
 }
 
@@ -66,6 +73,12 @@ interface TripState {
     patch: Partial<ActivityEntry>
   ) => void
   deleteActivity: (dayId: string, activityId: string) => void
+  addPackingCategory: (name: string) => void
+  renamePackingCategory: (categoryId: string, name: string) => void
+  deletePackingCategory: (categoryId: string) => void
+  addPackingItem: (categoryId: string | null, name: string) => void
+  togglePackingItem: (categoryId: string | null, itemId: string) => void
+  deletePackingItem: (categoryId: string | null, itemId: string) => void
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -208,6 +221,125 @@ export const useTripStore = create<TripState>((set, get) => {
           activities: d.activities.filter((a) => a.id !== activityId),
         }))
       )
+    },
+
+    addPackingCategory: (name) => {
+      const trip = get().trip
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: [
+            ...trip.packingList.categories,
+            { id: uid(), name, items: [] },
+          ],
+        },
+      })
+    },
+
+    renamePackingCategory: (categoryId, name) => {
+      const trip = get().trip
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: trip.packingList.categories.map((c) =>
+            c.id === categoryId ? { ...c, name } : c
+          ),
+        },
+      })
+    },
+
+    deletePackingCategory: (categoryId) => {
+      const trip = get().trip
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: trip.packingList.categories.filter((c) => c.id !== categoryId),
+        },
+      })
+    },
+
+    addPackingItem: (categoryId, name) => {
+      const trip = get().trip
+      const item = { id: uid(), name, checked: false }
+      if (categoryId === null) {
+        commit({
+          ...trip,
+          packingList: {
+            ...trip.packingList,
+            items: [...trip.packingList.items, item],
+          },
+        })
+        return
+      }
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: trip.packingList.categories.map((c) =>
+            c.id === categoryId ? { ...c, items: [...c.items, item] } : c
+          ),
+        },
+      })
+    },
+
+    togglePackingItem: (categoryId, itemId) => {
+      const trip = get().trip
+      if (categoryId === null) {
+        commit({
+          ...trip,
+          packingList: {
+            ...trip.packingList,
+            items: trip.packingList.items.map((i) =>
+              i.id === itemId ? { ...i, checked: !i.checked } : i
+            ),
+          },
+        })
+        return
+      }
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: trip.packingList.categories.map((c) =>
+            c.id === categoryId
+              ? {
+                  ...c,
+                  items: c.items.map((i) =>
+                    i.id === itemId ? { ...i, checked: !i.checked } : i
+                  ),
+                }
+              : c
+          ),
+        },
+      })
+    },
+
+    deletePackingItem: (categoryId, itemId) => {
+      const trip = get().trip
+      if (categoryId === null) {
+        commit({
+          ...trip,
+          packingList: {
+            ...trip.packingList,
+            items: trip.packingList.items.filter((i) => i.id !== itemId),
+          },
+        })
+        return
+      }
+      commit({
+        ...trip,
+        packingList: {
+          ...trip.packingList,
+          categories: trip.packingList.categories.map((c) =>
+            c.id === categoryId
+              ? { ...c, items: c.items.filter((i) => i.id !== itemId) }
+              : c
+          ),
+        },
+      })
     },
   }
 })

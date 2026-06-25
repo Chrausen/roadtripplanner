@@ -85,6 +85,116 @@
   gap: 0.5rem;
 }
 
+/* App nav: top-level burger menu (trip / packing list) */
+.app-nav {
+  position: relative;
+  background: var(--paper-dark);
+  padding: 0.5rem 1.25rem 0;
+}
+
+.app-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 1.25rem;
+  z-index: 20;
+  margin-top: 0.4rem;
+  background: var(--paper-contrast-text);
+  border: 1px solid var(--ink-soft);
+  border-radius: 6px;
+  box-shadow: 2px 4px 10px rgba(44, 33, 19, 0.25);
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  overflow: hidden;
+}
+
+.app-nav-item {
+  background: var(--paper);
+  color: var(--ink);
+  border: none;
+  border-bottom: 1px solid var(--rule-line);
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+}
+
+.app-nav-item:last-child {
+  border-bottom: none;
+}
+
+.app-nav-item.active {
+  background: var(--brand-dark);
+  color: var(--paper-contrast-text);
+}
+
+/* Packing list */
+.packing-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.packing-item-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.packing-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  background: var(--paper);
+}
+
+.packing-item-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.packing-item-checked {
+  text-decoration: line-through;
+  color: var(--ink-soft);
+}
+
+.packing-add-form,
+.packing-add-category-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.packing-add-form input,
+.packing-add-category-form input {
+  flex: 1;
+}
+
+.packing-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.packing-category-title {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
 /* Day nav: collapsible burger-style dropdown, same pattern on desktop and mobile */
 .day-nav {
   position: relative;
