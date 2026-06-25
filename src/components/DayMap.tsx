@@ -12,7 +12,7 @@ import {
 import L from 'leaflet'
 import type { Day, Coordinates, PlaceType, ActivityType } from '../types'
 import { useTripStore } from '../store'
-import { fetchOsrmRoute, formatDuration } from '../api'
+import { fetchOsrmRoute, formatDuration, reverseGeocode } from '../api'
 
 const PLACE_COLORS: Record<PlaceType, string> = {
   sight: '#2f6b52',
@@ -282,11 +282,15 @@ export function DayMap({ day }: { day: Day }) {
     const end = menu.coords
     setPendingStart(null)
     setMenu(null)
-    fetchOsrmRoute(start, end).then((result) => {
+    Promise.all([
+      fetchOsrmRoute(start, end),
+      reverseGeocode(start),
+      reverseGeocode(end),
+    ]).then(([result, fromName, toName]) => {
       if (!result) return
       addRoute(day.id, {
-        from: '',
-        to: '',
+        from: fromName,
+        to: toName,
         fromCoords: start,
         toCoords: end,
         notes: '',

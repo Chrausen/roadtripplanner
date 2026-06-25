@@ -23,6 +23,16 @@ export async function geocodeSearch(query: string): Promise<GeocodeResult[]> {
   }))
 }
 
+export async function reverseGeocode(coords: Coordinates): Promise<string> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!res.ok) return ''
+  const data = await res.json()
+  return data.display_name ?? ''
+}
+
 export interface OsrmRouteResult {
   geometry: Coordinates[]
   durationSeconds: number
