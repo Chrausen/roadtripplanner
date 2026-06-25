@@ -195,6 +195,54 @@
   font-size: 1.1rem;
 }
 
+/* Export / import / QR */
+.data-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.data-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.data-error {
+  color: var(--margin-red);
+  font-size: 0.9rem;
+}
+
+.data-success {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.qr-preview {
+  margin-top: 1rem;
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  background: var(--paper-contrast-text);
+}
+
+.qr-scan-video {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 360px;
+  border: 2px solid var(--ink-soft);
+  border-radius: 6px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
 /* Day nav: collapsible burger-style dropdown, same pattern on desktop and mobile */
 .day-nav {
   position: relative;
