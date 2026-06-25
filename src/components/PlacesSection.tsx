@@ -6,6 +6,7 @@ export function PlacesSection({ day }: { day: Day }) {
   const addPlace = useTripStore((s) => s.addPlace)
   const updatePlace = useTripStore((s) => s.updatePlace)
   const deletePlace = useTripStore((s) => s.deletePlace)
+  const focusOnMap = useTripStore((s) => s.focusOnMap)
 
   return (
     <section className="card">
@@ -14,6 +15,16 @@ export function PlacesSection({ day }: { day: Day }) {
         {day.places.map((place) => (
           <li key={place.id} className="entry-card">
             <div className="entry-row">
+              {place.coords && (
+                <button
+                  type="button"
+                  className="btn-link"
+                  title="Zoom map to this place"
+                  onClick={() => focusOnMap(place.coords!)}
+                >
+                  📍
+                </button>
+              )}
               <input
                 value={place.name}
                 placeholder="Place name"

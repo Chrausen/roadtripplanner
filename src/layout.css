@@ -402,6 +402,28 @@
   border-radius: 4px;
 }
 
+.route-preview-map {
+  width: 120px;
+  height: 60px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: inherit;
+  color: var(--ink);
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.btn-link:disabled {
+  text-decoration: none;
+  cursor: default;
+  opacity: 0.8;
+}
+
 .route-preview-empty {
   width: 120px;
   height: 60px;
@@ -571,11 +593,56 @@
   padding: 0.6rem;
 }
 
+.day-map-container {
+  position: relative;
+}
+
 .day-map {
   height: 480px;
   width: 100%;
   border: 2px solid var(--ink-soft);
   border-radius: 6px;
+}
+
+.radial-menu {
+  position: absolute;
+  z-index: 1000;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.radial-menu-center {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--margin-red);
+  transform: translate(-50%, -50%);
+}
+
+.radial-menu-option {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  width: 110px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  text-align: center;
+  border-radius: 999px;
+  border: 1px solid var(--ink-soft);
+  background: var(--paper-contrast-text);
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(44, 33, 19, 0.35);
+  cursor: pointer;
+}
+
+.radial-menu-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .pin-dot {

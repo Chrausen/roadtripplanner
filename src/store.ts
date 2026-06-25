@@ -55,6 +55,8 @@ function normalizeTrip(trip: Trip): Trip {
 
 interface TripState {
   trip: Trip
+  focusRequest: { coords: Coordinates; id: number } | null
+  focusOnMap: (coords: Coordinates) => void
   setTripInfo: (name: string, description: string) => void
   addDay: () => void
   deleteDay: (dayId: string) => void
@@ -106,6 +108,11 @@ export const useTripStore = create<TripState>((set, get) => {
 
   return {
     trip: initial,
+    focusRequest: null,
+
+    focusOnMap: (coords) => {
+      set((s) => ({ focusRequest: { coords, id: (s.focusRequest?.id ?? 0) + 1 } }))
+    },
 
     setTripInfo: (name, description) => {
       commit({ ...get().trip, name, description })
@@ -113,12 +120,18 @@ export const useTripStore = create<TripState>((set, get) => {
 
     addDay: () => {
       const trip = get().trip
+      const previousDay = trip.days[trip.days.length - 1]
+      const lastRoute = previousDay?.routes[previousDay.routes.length - 1]
+      const goal = lastRoute?.toCoords
       const day = makeDay()
       commit({
         ...trip,
         days: [...trip.days, day],
         activeDayId: day.id,
       })
+      if (goal) {
+        get().focusOnMap(goal)
+      }
     },
 
     deleteDay: (dayId) => {

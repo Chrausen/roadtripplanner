@@ -39,6 +39,8 @@ const ROUTE_PALETTE = ['#8a5a3c', '#2f6b52', '#b23b3b', '#2f5b8c', '#7d3a8a']
 const BERLIN: Coordinates = { lat: 52.52, lng: 13.405 }
 // Roughly shows a 100km radius around the center point.
 const DEFAULT_ZOOM = 9
+// Roughly shows a 10km radius around the center point.
+const FOCUS_ZOOM = 12
 
 function dotIcon(color: string) {
   return L.divIcon({
@@ -103,37 +105,91 @@ function FitBounds({
   return null
 }
 
-function RouteDrawing({ day }: { day: Day }) {
-  const [pendingStart, setPendingStart] = useState<Coordinates | null>(null)
-  const addRoute = useTripStore((s) => s.addRoute)
+function FocusHandler({
+  focusRequest,
+}: {
+  focusRequest: { coords: Coordinates; id: number } | null
+}) {
+  const map = useMap()
 
+  useEffect(() => {
+    if (!focusRequest) return
+    map.setView([focusRequest.coords.lat, focusRequest.coords.lng], FOCUS_ZOOM)
+  }, [focusRequest, map])
+
+  return null
+}
+
+interface MapMenuState {
+  coords: Coordinates
+  point: { x: number; y: number }
+}
+
+function MapContextMenu({
+  onOpen,
+  onClose,
+}: {
+  onOpen: (coords: Coordinates, point: { x: number; y: number }) => void
+  onClose: () => void
+}) {
   useMapEvents({
     contextmenu(e) {
-      const clicked = { lat: e.latlng.lat, lng: e.latlng.lng }
-      if (!pendingStart) {
-        setPendingStart(clicked)
-      } else {
-        const start = pendingStart
-        setPendingStart(null)
-        fetchOsrmRoute(start, clicked).then((result) => {
-          if (!result) return
-          addRoute(day.id, {
-            from: '',
-            to: '',
-            fromCoords: start,
-            toCoords: clicked,
-            notes: '',
-            geometry: result.geometry,
-            durationSeconds: result.durationSeconds,
-            distanceKm: result.distanceKm,
-          })
-        })
-      }
+      onOpen({ lat: e.latlng.lat, lng: e.latlng.lng }, e.containerPoint)
+    },
+    click() {
+      onClose()
+    },
+    movestart() {
+      onClose()
     },
   })
+  return null
+}
 
-  if (!pendingStart) return null
-  return <Marker position={[pendingStart.lat, pendingStart.lng]} icon={endpointIcon('A')} />
+function RadialMapMenu({
+  menu,
+  canEndRoute,
+  onStartRoute,
+  onEndRoute,
+  onPlacePin,
+}: {
+  menu: MapMenuState
+  canEndRoute: boolean
+  onStartRoute: () => void
+  onEndRoute: () => void
+  onPlacePin: () => void
+}) {
+  const options = [
+    { label: 'Start route here', onClick: onStartRoute, disabled: false },
+    { label: 'End route here', onClick: onEndRoute, disabled: !canEndRoute },
+    { label: 'Place a pin', onClick: onPlacePin, disabled: false },
+  ]
+  const radius = 64
+  return (
+    <div
+      className="radial-menu"
+      style={{ left: menu.point.x, top: menu.point.y }}
+    >
+      <span className="radial-menu-center" />
+      {options.map((opt, i) => {
+        const angle = (-90 + (360 / options.length) * i) * (Math.PI / 180)
+        const x = Math.cos(angle) * radius
+        const y = Math.sin(angle) * radius
+        return (
+          <button
+            key={opt.label}
+            type="button"
+            className="radial-menu-option"
+            style={{ transform: `translate(${x}px, ${y}px) translate(-50%, -50%)` }}
+            disabled={opt.disabled}
+            onClick={opt.onClick}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 function ClickToAdd({
@@ -154,12 +210,16 @@ function ClickToAdd({
 
 export function DayMap({ day }: { day: Day }) {
   const deleteRoute = useTripStore((s) => s.deleteRoute)
+  const addRoute = useTripStore((s) => s.addRoute)
   const addPlace = useTripStore((s) => s.addPlace)
   const addActivity = useTripStore((s) => s.addActivity)
+  const focusRequest = useTripStore((s) => s.focusRequest)
   const [addMode, setAddMode] = useState(false)
   const [pickedCoords, setPickedCoords] = useState<Coordinates | null>(null)
   const [newName, setNewName] = useState('')
   const [newKind, setNewKind] = useState<'place' | 'activity'>('place')
+  const [pendingStart, setPendingStart] = useState<Coordinates | null>(null)
+  const [menu, setMenu] = useState<MapMenuState | null>(null)
 
   const points: MapPoint[] = useMemo(() => {
     const placePoints = day.places
@@ -210,6 +270,39 @@ export function DayMap({ day }: { day: Day }) {
     setNewName('')
   }
 
+  function handleStartRoute() {
+    if (!menu) return
+    setPendingStart(menu.coords)
+    setMenu(null)
+  }
+
+  function handleEndRoute() {
+    if (!menu || !pendingStart) return
+    const start = pendingStart
+    const end = menu.coords
+    setPendingStart(null)
+    setMenu(null)
+    fetchOsrmRoute(start, end).then((result) => {
+      if (!result) return
+      addRoute(day.id, {
+        from: '',
+        to: '',
+        fromCoords: start,
+        toCoords: end,
+        notes: '',
+        geometry: result.geometry,
+        durationSeconds: result.durationSeconds,
+        distanceKm: result.distanceKm,
+      })
+    })
+  }
+
+  function handlePlacePin() {
+    if (!menu) return
+    setPickedCoords(menu.coords)
+    setMenu(null)
+  }
+
   return (
     <div className="day-map-wrap">
       <div className="map-toolbar">
@@ -222,7 +315,7 @@ export function DayMap({ day }: { day: Day }) {
         >
           {addMode ? 'Click map to add pin…' : 'Click to add mode'}
         </button>
-        <span className="map-hint mono">Right-click: start/end a driving route</span>
+        <span className="map-hint mono">Right-click: open the route/pin menu</span>
       </div>
 
       {pickedCoords && (
@@ -246,28 +339,34 @@ export function DayMap({ day }: { day: Day }) {
         </div>
       )}
 
-      <MapContainer center={[BERLIN.lat, BERLIN.lng]} zoom={DEFAULT_ZOOM} className="day-map" scrollWheelZoom>
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors, tiles by Humanitarian OSM Team'
-          url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-          subdomains={['a', 'b']}
-        />
-        <FitBounds points={points} routeEndpoints={routeEndpoints} />
-        <ClickToAdd active={addMode} onPick={setPickedCoords} />
-        <RouteDrawing day={day} />
+      <div className="day-map-container">
+        <MapContainer center={[BERLIN.lat, BERLIN.lng]} zoom={DEFAULT_ZOOM} className="day-map" scrollWheelZoom>
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors, tiles by Humanitarian OSM Team'
+            url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+            subdomains={['a', 'b']}
+          />
+          <FitBounds points={points} routeEndpoints={routeEndpoints} />
+          <FocusHandler focusRequest={focusRequest} />
+          <ClickToAdd active={addMode} onPick={setPickedCoords} />
+          <MapContextMenu onOpen={(coords, point) => setMenu({ coords, point })} onClose={() => setMenu(null)} />
 
-        {points.map((p) => (
-          <Marker key={p.id} position={[p.coords.lat, p.coords.lng]} icon={dotIcon(p.color)}>
-            <Popup>
-              <strong>{p.name}</strong>
-              {p.notes && <p>{p.notes}</p>}
-            </Popup>
-          </Marker>
-        ))}
+          {points.map((p) => (
+            <Marker key={p.id} position={[p.coords.lat, p.coords.lng]} icon={dotIcon(p.color)}>
+              <Popup>
+                <strong>{p.name}</strong>
+                {p.notes && <p>{p.notes}</p>}
+              </Popup>
+            </Marker>
+          ))}
 
-        {pickedCoords && (
-          <Marker position={[pickedCoords.lat, pickedCoords.lng]} icon={endpointIcon('+')} />
-        )}
+          {pickedCoords && (
+            <Marker position={[pickedCoords.lat, pickedCoords.lng]} icon={endpointIcon('+')} />
+          )}
+
+          {pendingStart && (
+            <Marker position={[pendingStart.lat, pendingStart.lng]} icon={endpointIcon('A')} />
+          )}
 
         {drawnRoutes.map((route, i) => {
           const color = ROUTE_PALETTE[i % ROUTE_PALETTE.length]
@@ -294,7 +393,18 @@ export function DayMap({ day }: { day: Day }) {
             </span>
           )
         })}
-      </MapContainer>
+        </MapContainer>
+
+        {menu && (
+          <RadialMapMenu
+            menu={menu}
+            canEndRoute={!!pendingStart}
+            onStartRoute={handleStartRoute}
+            onEndRoute={handleEndRoute}
+            onPlacePin={handlePlacePin}
+          />
+        )}
+      </div>
     </div>
   )
 }
