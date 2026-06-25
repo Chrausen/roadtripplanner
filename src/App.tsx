@@ -11,16 +11,14 @@ function App() {
   return (
     <div className="app-shell">
       <TripHeader />
-      <div className="app-body">
-        <DayNav />
-        <main className="app-main">
-          {activeDay ? (
-            <DayView day={activeDay} />
-          ) : (
-            <p className="empty-state">No day yet — add one to get started.</p>
-          )}
-        </main>
-      </div>
+      <DayNav />
+      <main className="app-main">
+        {activeDay ? (
+          <DayView day={activeDay} />
+        ) : (
+          <p className="empty-state">No day yet — add one to get started.</p>
+        )}
+      </main>
     </div>
   )
 }

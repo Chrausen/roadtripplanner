@@ -6,7 +6,7 @@ import type {
   Day,
   Place,
   PlaceType,
-  RouteSegment,
+  RouteEntry,
   Trip,
 } from './types'
 import { loadTrip, saveTrip } from './storage'
@@ -19,10 +19,9 @@ function makeDay(): Day {
   return {
     id: uid(),
     title: '',
-    route: { from: '', to: '', distanceKm: null, notes: '' },
+    routes: [],
     places: [],
     activities: [],
-    mapRoutes: [],
   }
 }
 
@@ -36,6 +35,17 @@ function defaultTrip(): Trip {
   }
 }
 
+function normalizeTrip(trip: Trip): Trip {
+  return {
+    ...trip,
+    days: trip.days.map((day) => {
+      const d = day as Day & { route?: unknown; mapRoutes?: unknown }
+      if (Array.isArray(d.routes)) return day
+      return { ...day, routes: [] }
+    }),
+  }
+}
+
 interface TripState {
   trip: Trip
   setTripInfo: (name: string, description: string) => void
@@ -43,7 +53,9 @@ interface TripState {
   deleteDay: (dayId: string) => void
   setActiveDay: (dayId: string) => void
   setDayTitle: (dayId: string, title: string) => void
-  updateRoute: (dayId: string, route: Day['route']) => void
+  addRoute: (dayId: string, route: Omit<RouteEntry, 'id'>) => string
+  updateRoute: (dayId: string, routeId: string, patch: Partial<RouteEntry>) => void
+  deleteRoute: (dayId: string, routeId: string) => void
   addPlace: (dayId: string, place: Omit<Place, 'id'>) => void
   updatePlace: (dayId: string, placeId: string, patch: Partial<Place>) => void
   deletePlace: (dayId: string, placeId: string) => void
@@ -54,8 +66,6 @@ interface TripState {
     patch: Partial<ActivityEntry>
   ) => void
   deleteActivity: (dayId: string, activityId: string) => void
-  addMapRoute: (dayId: string, route: Omit<RouteSegment, 'id'>) => void
-  deleteMapRoute: (dayId: string, routeId: string) => void
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -72,7 +82,8 @@ function withDay(trip: Trip, dayId: string, fn: (day: Day) => Day): Trip {
 }
 
 export const useTripStore = create<TripState>((set, get) => {
-  const initial = loadTrip() ?? defaultTrip()
+  const loaded = loadTrip()
+  const initial = loaded ? normalizeTrip(loaded) : defaultTrip()
 
   const commit = (trip: Trip) => {
     scheduleSave(trip)
@@ -112,8 +123,33 @@ export const useTripStore = create<TripState>((set, get) => {
       commit(withDay(get().trip, dayId, (d) => ({ ...d, title })))
     },
 
-    updateRoute: (dayId, route) => {
-      commit(withDay(get().trip, dayId, (d) => ({ ...d, route })))
+    addRoute: (dayId, route) => {
+      const id = uid()
+      commit(
+        withDay(get().trip, dayId, (d) => ({
+          ...d,
+          routes: [...d.routes, { ...route, id }],
+        }))
+      )
+      return id
+    },
+
+    updateRoute: (dayId, routeId, patch) => {
+      commit(
+        withDay(get().trip, dayId, (d) => ({
+          ...d,
+          routes: d.routes.map((r) => (r.id === routeId ? { ...r, ...patch } : r)),
+        }))
+      )
+    },
+
+    deleteRoute: (dayId, routeId) => {
+      commit(
+        withDay(get().trip, dayId, (d) => ({
+          ...d,
+          routes: d.routes.filter((r) => r.id !== routeId),
+        }))
+      )
     },
 
     addPlace: (dayId, place) => {
@@ -170,24 +206,6 @@ export const useTripStore = create<TripState>((set, get) => {
         withDay(get().trip, dayId, (d) => ({
           ...d,
           activities: d.activities.filter((a) => a.id !== activityId),
-        }))
-      )
-    },
-
-    addMapRoute: (dayId, route) => {
-      commit(
-        withDay(get().trip, dayId, (d) => ({
-          ...d,
-          mapRoutes: [...d.mapRoutes, { ...route, id: uid() }],
-        }))
-      )
-    },
-
-    deleteMapRoute: (dayId, routeId) => {
-      commit(
-        withDay(get().trip, dayId, (d) => ({
-          ...d,
-          mapRoutes: d.mapRoutes.filter((r) => r.id !== routeId),
         }))
       )
     },
