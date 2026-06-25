@@ -1,26 +1,66 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet'
+import L from 'leaflet'
 import { useTripStore } from '../store'
 import type { Day, RouteEntry } from '../types'
 import { AddressSearchInput } from './AddressSearchInput'
-import { formatDuration } from '../api'
-import { buildRoutePreviewPath } from '../routePreview'
+import { fetchOsrmRoute, formatDuration } from '../api'
+
+function FitRoute({ positions }: { positions: [number, number][] }) {
+  const map = useMap()
+  useEffect(() => {
+    map.fitBounds(L.latLngBounds(positions), { padding: [6, 6] })
+  }, [positions, map])
+  return null
+}
 
 function RoutePreview({ route }: { route: RouteEntry }) {
   if (route.geometry.length < 2) {
     return <div className="route-preview route-preview-empty mono">no path drawn</div>
   }
-  const path = buildRoutePreviewPath(route.geometry)
+  const positions = route.geometry.map((c) => [c.lat, c.lng]) as [number, number][]
   return (
-    <svg className="route-preview" viewBox="0 0 120 60" width={120} height={60}>
-      <path d={path} fill="none" stroke="#8a5a3c" strokeWidth={2.5} strokeLinecap="round" />
-    </svg>
+    <MapContainer
+      className="route-preview route-preview-map"
+      center={positions[0]}
+      zoom={9}
+      dragging={false}
+      zoomControl={false}
+      scrollWheelZoom={false}
+      doubleClickZoom={false}
+      attributionControl={false}
+      touchZoom={false}
+      boxZoom={false}
+      keyboard={false}
+    >
+      <TileLayer
+        url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+        subdomains={['a', 'b']}
+      />
+      <FitRoute positions={positions} />
+      <Polyline positions={positions} pathOptions={{ color: '#8a5a3c', weight: 2.5 }} />
+    </MapContainer>
   )
 }
 
 function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
   const updateRoute = useTripStore((s) => s.updateRoute)
   const deleteRoute = useTripStore((s) => s.deleteRoute)
+  const focusOnMap = useTripStore((s) => s.focusOnMap)
   const [expanded, setExpanded] = useState(!route.from && !route.to)
+
+  useEffect(() => {
+    if (route.fromCoords && route.toCoords && route.geometry.length < 2) {
+      fetchOsrmRoute(route.fromCoords, route.toCoords).then((result) => {
+        if (!result) return
+        updateRoute(day.id, route.id, {
+          geometry: result.geometry,
+          durationSeconds: result.durationSeconds,
+          distanceKm: result.distanceKm,
+        })
+      })
+    }
+  }, [route.fromCoords, route.toCoords, route.geometry.length, day.id, route.id, updateRoute])
 
   if (!expanded) {
     return (
@@ -28,7 +68,23 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
         <RoutePreview route={route} />
         <div className="route-card-summary">
           <strong>
-            {route.from || 'Start'} → {route.to || 'End'}
+            <button
+              type="button"
+              className="btn-link"
+              disabled={!route.fromCoords}
+              onClick={() => route.fromCoords && focusOnMap(route.fromCoords)}
+            >
+              {route.from || 'Start'}
+            </button>
+            {' → '}
+            <button
+              type="button"
+              className="btn-link"
+              disabled={!route.toCoords}
+              onClick={() => route.toCoords && focusOnMap(route.toCoords)}
+            >
+              {route.to || 'End'}
+            </button>
           </strong>
           {(route.durationSeconds != null || route.distanceKm != null) && (
             <span className="mono route-card-meta">
