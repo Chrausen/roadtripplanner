@@ -4,6 +4,7 @@ import { TripHeader } from './components/TripHeader'
 import { DayNav } from './components/DayNav'
 import { DayView } from './components/DayView'
 import { PackingListView } from './components/PackingListView'
+import { DataSection } from './components/DataSection'
 import { AppNav, type AppView } from './components/AppNav'
 import './layout.css'
 
@@ -27,9 +28,13 @@ function App() {
             )}
           </main>
         </>
-      ) : (
+      ) : view === 'packing' ? (
         <main className="app-main">
           <PackingListView />
+        </main>
+      ) : (
+        <main className="app-main">
+          <DataSection />
         </main>
       )}
     </div>

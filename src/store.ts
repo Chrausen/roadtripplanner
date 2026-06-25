@@ -79,6 +79,7 @@ interface TripState {
   addPackingItem: (categoryId: string | null, name: string) => void
   togglePackingItem: (categoryId: string | null, itemId: string) => void
   deletePackingItem: (categoryId: string | null, itemId: string) => void
+  replaceTrip: (trip: Trip) => void
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -340,6 +341,10 @@ export const useTripStore = create<TripState>((set, get) => {
           ),
         },
       })
+    },
+
+    replaceTrip: (trip) => {
+      commit(normalizeTrip(trip))
     },
   }
 })

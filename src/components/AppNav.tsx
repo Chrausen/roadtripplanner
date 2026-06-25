@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export type AppView = 'trip' | 'packing'
+export type AppView = 'trip' | 'packing' | 'data'
 
 export function AppNav({
   view,
@@ -55,6 +55,15 @@ export function AppNav({
             }}
           >
             Packing list
+          </button>
+          <button
+            className={view === 'data' ? 'app-nav-item active' : 'app-nav-item'}
+            onClick={() => {
+              onChange('data')
+              setOpen(false)
+            }}
+          >
+            Export / import / QR
           </button>
         </nav>
       )}
