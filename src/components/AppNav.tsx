@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { SaveIndicator } from './SaveIndicator'
 
 export type AppView = 'trip' | 'packing' | 'data'
 
@@ -70,6 +71,7 @@ export function AppNav({
           </button>
         ))}
       </nav>
+      <SaveIndicator />
     </div>
   )
 }

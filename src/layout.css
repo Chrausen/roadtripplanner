@@ -115,14 +115,22 @@
 /* App nav: top-level burger menu (trip / packing list) */
 .app-nav {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: var(--paper);
   border-bottom: 1px solid var(--rule-line);
-  padding: 0.5rem 1.25rem 0;
+  padding: 0.5rem 1.25rem;
 }
 
 .app-nav-toggle {
   display: inline-flex;
   align-items: center;
+}
+
+.save-indicator {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
 }
 
 .app-nav-panel {
@@ -171,9 +179,17 @@
 
   .app-nav {
     flex: 0 0 200px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     border-bottom: none;
     border-right: 1px solid var(--rule-line);
     padding: 1.25rem 0;
+  }
+
+  .app-nav .save-indicator {
+    order: 2;
+    padding: 0.75rem 0.9rem 0;
   }
 
   .app-nav-toggle,

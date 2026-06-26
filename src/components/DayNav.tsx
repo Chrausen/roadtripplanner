@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTripStore } from '../store'
+import { ConfirmButton } from './ConfirmButton'
 
 export function DayNav() {
   const trip = useTripStore((s) => s.trip)
@@ -65,13 +66,14 @@ export function DayNav() {
                     onClick={(e) => e.stopPropagation()}
                   />
                 </button>
-                <button
+                <ConfirmButton
                   className="btn-danger day-delete-btn"
                   aria-label={`Delete day ${index + 1}`}
-                  onClick={() => deleteDay(day.id)}
+                  confirmLabel="✓"
+                  onConfirm={() => deleteDay(day.id)}
                 >
                   ✕
-                </button>
+                </ConfirmButton>
               </li>
             ))}
           </ul>

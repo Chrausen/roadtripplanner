@@ -138,6 +138,30 @@ button:focus-visible {
   box-shadow: var(--elevation-2);
 }
 
+.btn-confirming {
+  background-color: var(--danger-dark, #c5221f);
+  outline: 2px solid #ffffff;
+  outline-offset: -4px;
+  animation: confirm-pulse 1s ease-in-out infinite;
+}
+
+@keyframes confirm-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--ink-soft);
