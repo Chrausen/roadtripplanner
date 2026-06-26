@@ -53,8 +53,11 @@ function normalizeTrip(trip: Trip): Trip {
   }
 }
 
+type SaveStatus = 'saved' | 'saving'
+
 interface TripState {
   trip: Trip
+  saveStatus: SaveStatus
   focusRequest: { coords: Coordinates; id: number } | null
   focusOnMap: (coords: Coordinates) => void
   setTripInfo: (name: string, description: string) => void
@@ -85,9 +88,12 @@ interface TripState {
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
-function scheduleSave(trip: Trip) {
+function scheduleSave(trip: Trip, onSaved: () => void) {
   if (saveTimer) clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => saveTrip(trip), 400)
+  saveTimer = setTimeout(() => {
+    saveTrip(trip)
+    onSaved()
+  }, 400)
 }
 
 function withDay(trip: Trip, dayId: string, fn: (day: Day) => Day): Trip {
@@ -102,12 +108,13 @@ export const useTripStore = create<TripState>((set, get) => {
   const initial = loaded ? normalizeTrip(loaded) : defaultTrip()
 
   const commit = (trip: Trip) => {
-    scheduleSave(trip)
-    set({ trip })
+    scheduleSave(trip, () => set({ saveStatus: 'saved' }))
+    set({ trip, saveStatus: 'saving' })
   }
 
   return {
     trip: initial,
+    saveStatus: 'saved',
     focusRequest: null,
 
     focusOnMap: (coords) => {

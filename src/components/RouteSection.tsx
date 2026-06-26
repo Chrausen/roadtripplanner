@@ -4,6 +4,7 @@ import L from 'leaflet'
 import { useTripStore } from '../store'
 import type { Day, RouteEntry } from '../types'
 import { AddressSearchInput } from './AddressSearchInput'
+import { ConfirmButton } from './ConfirmButton'
 import { fetchOsrmRoute, formatDuration } from '../api'
 
 function FitRoute({ positions }: { positions: [number, number][] }) {
@@ -157,9 +158,9 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
         <button className="btn-secondary" onClick={() => setExpanded(false)}>
           Done
         </button>
-        <button className="btn-danger" onClick={() => deleteRoute(day.id, route.id)}>
+        <ConfirmButton onConfirm={() => deleteRoute(day.id, route.id)}>
           Delete
-        </button>
+        </ConfirmButton>
       </div>
     </li>
   )
@@ -171,12 +172,14 @@ export function RouteSection({ day }: { day: Day }) {
   return (
     <section className="card">
       <h2>Route</h2>
-      {day.routes.length > 0 && (
+      {day.routes.length > 0 ? (
         <ul className="route-card-list">
           {day.routes.map((route) => (
             <RouteCard key={route.id} day={day} route={route} />
           ))}
         </ul>
+      ) : (
+        <p className="empty-state">No route legs yet — add one to map out today's drive.</p>
       )}
       <button
         className="btn-primary"

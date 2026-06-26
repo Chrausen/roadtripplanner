@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTripStore } from '../store'
 import { PLACE_TYPES, type Day, type Place, type PlaceType } from '../types'
 import { CoordinatePicker } from './CoordinatePicker'
+import { ConfirmButton } from './ConfirmButton'
 
 function PlaceCard({ day, place }: { day: Day; place: Place }) {
   const updatePlace = useTripStore((s) => s.updatePlace)
@@ -72,13 +73,12 @@ function PlaceCard({ day, place }: { day: Day; place: Place }) {
         <button className="btn-secondary" onClick={() => setEditing(false)}>
           Done
         </button>
-        <button
-          className="btn-danger"
-          onClick={() => deletePlace(day.id, place.id)}
+        <ConfirmButton
+          onConfirm={() => deletePlace(day.id, place.id)}
           aria-label={`Delete ${place.name || 'place'}`}
         >
           Delete
-        </button>
+        </ConfirmButton>
       </div>
       <textarea
         value={place.notes}
@@ -100,11 +100,15 @@ export function PlacesSection({ day }: { day: Day }) {
   return (
     <section className="card">
       <h2>Places to visit</h2>
-      <ul className="entry-list">
-        {day.places.map((place) => (
-          <PlaceCard key={place.id} day={day} place={place} />
-        ))}
-      </ul>
+      {day.places.length > 0 ? (
+        <ul className="entry-list">
+          {day.places.map((place) => (
+            <PlaceCard key={place.id} day={day} place={place} />
+          ))}
+        </ul>
+      ) : (
+        <p className="empty-state">No places yet — add a sight, museum, or stop to visit.</p>
+      )}
       <button
         className="btn-primary"
         onClick={() =>

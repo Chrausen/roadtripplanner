@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTripStore } from '../store'
+import { ConfirmButton } from './ConfirmButton'
 
 function ItemRow({
   categoryId,
@@ -21,13 +22,13 @@ function ItemRow({
         />
         <span className={item.checked ? 'packing-item-checked' : ''}>{item.name}</span>
       </label>
-      <button
-        className="btn-danger"
-        onClick={() => deletePackingItem(categoryId, item.id)}
+      <ConfirmButton
+        onConfirm={() => deletePackingItem(categoryId, item.id)}
         aria-label={`Delete ${item.name}`}
+        confirmLabel="✓"
       >
         ✕
-      </button>
+      </ConfirmButton>
     </li>
   )
 }
@@ -77,11 +78,15 @@ export function PackingListView() {
     <div className="packing-list-view">
       <section className="card">
         <h2>Packing list</h2>
-        <ul className="packing-item-list">
-          {trip.packingList.items.map((item) => (
-            <ItemRow key={item.id} categoryId={null} item={item} />
-          ))}
-        </ul>
+        {trip.packingList.items.length > 0 ? (
+          <ul className="packing-item-list">
+            {trip.packingList.items.map((item) => (
+              <ItemRow key={item.id} categoryId={null} item={item} />
+            ))}
+          </ul>
+        ) : (
+          <p className="empty-state">No items yet — start adding what you need to pack.</p>
+        )}
         <AddItemForm categoryId={null} />
       </section>
 
@@ -94,19 +99,22 @@ export function PackingListView() {
               placeholder="Category name"
               onChange={(e) => renamePackingCategory(category.id, e.target.value)}
             />
-            <button
-              className="btn-danger"
-              onClick={() => deletePackingCategory(category.id)}
+            <ConfirmButton
+              onConfirm={() => deletePackingCategory(category.id)}
               aria-label={`Delete category ${category.name || 'category'}`}
             >
               Delete category
-            </button>
+            </ConfirmButton>
           </div>
-          <ul className="packing-item-list">
-            {category.items.map((item) => (
-              <ItemRow key={item.id} categoryId={category.id} item={item} />
-            ))}
-          </ul>
+          {category.items.length > 0 ? (
+            <ul className="packing-item-list">
+              {category.items.map((item) => (
+                <ItemRow key={item.id} categoryId={category.id} item={item} />
+              ))}
+            </ul>
+          ) : (
+            <p className="empty-state">No items in this category yet.</p>
+          )}
           <AddItemForm categoryId={category.id} />
         </section>
       ))}
