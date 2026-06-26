@@ -47,7 +47,7 @@ function RoutePreview({
           crossOrigin="anonymous"
         />
         <FitRoute positions={positions} />
-        <Polyline positions={positions} pathOptions={{ color: '#8a5a3c', weight: 2.5 }} />
+        <Polyline positions={positions} pathOptions={{ color: '#1a73e8', weight: 2.5 }} />
       </MapContainer>
     </div>
   )

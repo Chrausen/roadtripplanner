@@ -15,26 +15,26 @@ import { useTripStore } from '../store'
 import { fetchOsrmRoute, formatDuration, reverseGeocode } from '../api'
 
 const PLACE_COLORS: Record<PlaceType, string> = {
-  sight: '#2f6b52',
-  nature: '#3a7d44',
-  city: '#5b4636',
-  beach: '#1f7a8c',
-  museum: '#6b4329',
-  viewpoint: '#8a5a3c',
-  village: '#9c6644',
-  other: '#555555',
+  sight: '#188038',
+  nature: '#1e8e3e',
+  city: '#5f6368',
+  beach: '#12909a',
+  museum: '#8430ce',
+  viewpoint: '#1a73e8',
+  village: '#e37400',
+  other: '#5f6368',
 }
 
 const ACTIVITY_COLORS: Record<ActivityType, string> = {
-  activity: '#b23b3b',
-  meal: '#c97b3d',
-  cafe: '#a8763e',
-  accommodation: '#5c4d7d',
-  shopping: '#a23b8f',
-  other: '#777777',
+  activity: '#d93025',
+  meal: '#e37400',
+  cafe: '#f9ab00',
+  accommodation: '#8430ce',
+  shopping: '#d01884',
+  other: '#5f6368',
 }
 
-const ROUTE_PALETTE = ['#8a5a3c', '#2f6b52', '#b23b3b', '#2f5b8c', '#7d3a8a']
+const ROUTE_PALETTE = ['#1a73e8', '#188038', '#d93025', '#f9ab00', '#8430ce']
 
 const BERLIN: Coordinates = { lat: 52.52, lng: 13.405 }
 // Roughly shows a 100km radius around the center point.
