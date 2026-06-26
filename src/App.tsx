@@ -16,27 +16,29 @@ function App() {
   return (
     <div className="app-shell">
       <AppNav view={view} onChange={setView} />
-      <TripHeader />
-      {view === 'trip' ? (
-        <>
-          <DayNav />
+      <div className="app-body">
+        <TripHeader />
+        {view === 'trip' ? (
+          <>
+            <DayNav />
+            <main className="app-main">
+              {activeDay ? (
+                <DayView day={activeDay} />
+              ) : (
+                <p className="empty-state">No day yet — add one to get started.</p>
+              )}
+            </main>
+          </>
+        ) : view === 'packing' ? (
           <main className="app-main">
-            {activeDay ? (
-              <DayView day={activeDay} />
-            ) : (
-              <p className="empty-state">No day yet — add one to get started.</p>
-            )}
+            <PackingListView />
           </main>
-        </>
-      ) : view === 'packing' ? (
-        <main className="app-main">
-          <PackingListView />
-        </main>
-      ) : (
-        <main className="app-main">
-          <DataSection />
-        </main>
-      )}
+        ) : (
+          <main className="app-main">
+            <DataSection />
+          </main>
+        )}
+      </div>
     </div>
   )
 }
