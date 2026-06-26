@@ -616,6 +616,15 @@
   color: var(--ink-soft);
 }
 
+.map-search-bar {
+  flex: 1 1 240px;
+  max-width: 360px;
+}
+
+.map-search-bar input {
+  width: 100%;
+}
+
 .add-pin-form {
   display: flex;
   gap: 0.5rem;

@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import html2canvas from 'html2canvas'
 import { useTripStore } from '../store'
 import type { Day, RouteEntry } from '../types'
 import { AddressSearchInput } from './AddressSearchInput'
@@ -15,53 +14,34 @@ function FitRoute({ positions }: { positions: [number, number][] }) {
   return null
 }
 
-function RoutePreview({
-  route,
-  containerRef,
-}: {
-  route: RouteEntry
-  containerRef?: React.RefObject<HTMLDivElement | null>
-}) {
+function RoutePreview({ route }: { route: RouteEntry }) {
   if (route.geometry.length < 2) {
     return <div className="route-preview route-preview-empty mono">no path drawn</div>
   }
   const positions = route.geometry.map((c) => [c.lat, c.lng]) as [number, number][]
   return (
-    <div ref={containerRef}>
-      <MapContainer
-        className="route-preview route-preview-map"
-        center={positions[0]}
-        zoom={9}
-        dragging={false}
-        zoomControl={false}
-        scrollWheelZoom={false}
-        doubleClickZoom={false}
-        attributionControl={false}
-        touchZoom={false}
-        boxZoom={false}
-        keyboard={false}
-      >
-        <TileLayer
-          url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-          subdomains={['a', 'b']}
-          crossOrigin="anonymous"
-        />
-        <FitRoute positions={positions} />
-        <Polyline positions={positions} pathOptions={{ color: '#1a73e8', weight: 2.5 }} />
-      </MapContainer>
-    </div>
+    <MapContainer
+      className="route-preview route-preview-map"
+      center={positions[0]}
+      zoom={9}
+      dragging={false}
+      zoomControl={false}
+      scrollWheelZoom={false}
+      doubleClickZoom={false}
+      attributionControl={false}
+      touchZoom={false}
+      boxZoom={false}
+      keyboard={false}
+    >
+      <TileLayer
+        url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+        subdomains={['a', 'b']}
+        crossOrigin="anonymous"
+      />
+      <FitRoute positions={positions} />
+      <Polyline positions={positions} pathOptions={{ color: '#1a73e8', weight: 2.5 }} />
+    </MapContainer>
   )
-}
-
-async function exportRouteImage(container: HTMLDivElement, route: RouteEntry) {
-  const canvas = await html2canvas(container, { useCORS: true })
-  const link = document.createElement('a')
-  link.download = `route-${route.from || 'start'}-to-${route.to || 'end'}.png`.replace(
-    /\s+/g,
-    '-'
-  )
-  link.href = canvas.toDataURL('image/png')
-  link.click()
 }
 
 function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
@@ -69,7 +49,6 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
   const deleteRoute = useTripStore((s) => s.deleteRoute)
   const focusOnMap = useTripStore((s) => s.focusOnMap)
   const [expanded, setExpanded] = useState(!route.from && !route.to)
-  const previewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (route.fromCoords && route.toCoords && route.geometry.length < 2) {
@@ -87,25 +66,27 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
   if (!expanded) {
     return (
       <li className="route-card route-card-collapsed">
-        <RoutePreview route={route} containerRef={previewRef} />
+        <RoutePreview route={route} />
         <div className="route-card-summary">
           <strong>
             <button
               type="button"
               className="btn-link"
               disabled={!route.fromCoords}
+              title={route.from || undefined}
               onClick={() => route.fromCoords && focusOnMap(route.fromCoords)}
             >
-              {route.from || 'Start'}
+              Start
             </button>
             {' → '}
             <button
               type="button"
               className="btn-link"
               disabled={!route.toCoords}
+              title={route.to || undefined}
               onClick={() => route.toCoords && focusOnMap(route.toCoords)}
             >
-              {route.to || 'End'}
+              End
             </button>
           </strong>
           {(route.durationSeconds != null || route.distanceKm != null) && (
@@ -118,13 +99,6 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
           {route.notes && <p className="route-card-notes">{route.notes}</p>}
         </div>
         <div className="route-card-actions">
-          <button
-            className="btn-secondary"
-            disabled={route.geometry.length < 2}
-            onClick={() => previewRef.current && exportRouteImage(previewRef.current, route)}
-          >
-            Export as image
-          </button>
           <button
             type="button"
             className="btn-icon"
