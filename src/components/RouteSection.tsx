@@ -34,8 +34,8 @@ function RoutePreview({ route }: { route: RouteEntry }) {
       keyboard={false}
     >
       <TileLayer
-        url="https://tile-{s}.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-        subdomains={['a', 'b']}
+        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+        subdomains={['a', 'b', 'c', 'd']}
         crossOrigin="anonymous"
       />
       <FitRoute positions={positions} />
