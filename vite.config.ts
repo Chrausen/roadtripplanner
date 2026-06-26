@@ -13,9 +13,9 @@ export default defineConfig({
       manifest: {
         name: 'Road Trip Planner',
         short_name: 'Road Trip',
-        description: 'Plan multi-day road trips, journal-style.',
-        theme_color: '#8a5a3c',
-        background_color: '#f3e9d2',
+        description: 'Plan multi-day road trips.',
+        theme_color: '#1a73e8',
+        background_color: '#ffffff',
         display: 'standalone',
         start_url: '.',
         icons: [
