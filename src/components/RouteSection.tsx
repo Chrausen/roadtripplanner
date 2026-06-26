@@ -118,9 +118,6 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
           {route.notes && <p className="route-card-notes">{route.notes}</p>}
         </div>
         <div className="route-card-actions">
-          <button className="btn-secondary" onClick={() => setExpanded(true)}>
-            Edit
-          </button>
           <button
             className="btn-secondary"
             disabled={route.geometry.length < 2}
@@ -128,8 +125,14 @@ function RouteCard({ day, route }: { day: Day; route: RouteEntry }) {
           >
             Export as image
           </button>
-          <button className="btn-danger" onClick={() => deleteRoute(day.id, route.id)}>
-            Delete
+          <button
+            type="button"
+            className="btn-icon"
+            title="Edit route"
+            aria-label="Edit route"
+            onClick={() => setExpanded(true)}
+          >
+            ✏️
           </button>
         </div>
       </li>

@@ -461,6 +461,36 @@
   flex-shrink: 0;
 }
 
+.btn-icon {
+  background: none;
+  border: 1px solid var(--rule-line);
+  border-radius: 6px;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: var(--paper-contrast-text);
+}
+
+.entry-row-view {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.entry-row-view-text {
+  flex: 1 1 160px;
+}
+
 .route-card-expanded {
   display: flex;
   flex-direction: column;
