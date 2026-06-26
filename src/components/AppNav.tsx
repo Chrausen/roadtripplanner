@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 
 export type AppView = 'trip' | 'packing' | 'data'
 
+const NAV_ITEMS: { id: AppView; label: string }[] = [
+  { id: 'trip', label: 'Trip' },
+  { id: 'packing', label: 'Packing list' },
+  { id: 'data', label: 'Export / import / QR' },
+]
+
 export function AppNav({
   view,
   onChange,
@@ -38,35 +44,32 @@ export function AppNav({
 
       {open && (
         <nav className="app-nav-panel" aria-label="Main menu">
-          <button
-            className={view === 'trip' ? 'app-nav-item active' : 'app-nav-item'}
-            onClick={() => {
-              onChange('trip')
-              setOpen(false)
-            }}
-          >
-            Trip
-          </button>
-          <button
-            className={view === 'packing' ? 'app-nav-item active' : 'app-nav-item'}
-            onClick={() => {
-              onChange('packing')
-              setOpen(false)
-            }}
-          >
-            Packing list
-          </button>
-          <button
-            className={view === 'data' ? 'app-nav-item active' : 'app-nav-item'}
-            onClick={() => {
-              onChange('data')
-              setOpen(false)
-            }}
-          >
-            Export / import / QR
-          </button>
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              className={view === item.id ? 'app-nav-item active' : 'app-nav-item'}
+              onClick={() => {
+                onChange(item.id)
+                setOpen(false)
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
       )}
+
+      <nav className="app-nav-sidebar" aria-label="Main menu">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            className={view === item.id ? 'app-nav-item active' : 'app-nav-item'}
+            onClick={() => onChange(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </nav>
     </div>
   )
 }

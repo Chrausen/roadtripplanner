@@ -5,6 +5,14 @@
   min-height: 0;
 }
 
+.app-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
 .app-main {
   flex: 1;
   min-width: 0;
@@ -131,6 +139,45 @@
 .app-nav-item.active {
   background: rgba(26, 115, 232, 0.1);
   color: var(--brand-dark);
+}
+
+.app-nav-sidebar {
+  display: none;
+}
+
+/* Wide viewports: replace the burger dropdown with an always-visible left sidebar. */
+@media (min-width: 900px) {
+  .app-shell {
+    flex-direction: row;
+  }
+
+  .app-nav {
+    flex: 0 0 200px;
+    border-bottom: none;
+    border-right: 1px solid var(--rule-line);
+    padding: 1.25rem 0;
+  }
+
+  .app-nav-toggle,
+  .app-nav-panel {
+    display: none;
+  }
+
+  .app-nav-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0 0.75rem;
+  }
+
+  .app-nav-sidebar .app-nav-item {
+    border-radius: 6px;
+    border-bottom: none;
+  }
+
+  .app-body {
+    min-width: 0;
+  }
 }
 
 /* Packing list */
@@ -268,7 +315,7 @@
   position: absolute;
   top: 100%;
   left: 1.25rem;
-  z-index: 20;
+  z-index: 1100;
   margin-top: 0.4rem;
   background: var(--paper-contrast-text);
   border-radius: 8px;
@@ -402,6 +449,7 @@
   background: var(--paper-contrast-text);
   border: 1px solid var(--rule-line);
   border-radius: 8px;
+  isolation: isolate;
 }
 
 .route-preview-map {
@@ -637,6 +685,7 @@
 
 .day-map-container {
   position: relative;
+  isolation: isolate;
 }
 
 .day-map {
