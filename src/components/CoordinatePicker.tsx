@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Coordinates } from '../types'
 import { geocodeSearch, type GeocodeResult } from '../api'
 
@@ -11,15 +11,26 @@ export function CoordinatePicker({ coords, onChange }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeocodeResult[]>([])
   const [searching, setSearching] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function search() {
+  async function search(text: string) {
     setSearching(true)
     try {
-      const r = await geocodeSearch(query)
+      const r = await geocodeSearch(text)
       setResults(r)
     } finally {
       setSearching(false)
     }
+  }
+
+  function handleType(text: string) {
+    setQuery(text)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (text.trim().length < 3) {
+      setResults([])
+      return
+    }
+    debounceRef.current = setTimeout(() => search(text), 350)
   }
 
   return (
@@ -38,11 +49,11 @@ export function CoordinatePicker({ coords, onChange }: Props) {
           <div className="coord-search-row">
             <input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => handleType(e.target.value)}
               placeholder="Search a place name…"
-              onKeyDown={(e) => e.key === 'Enter' && search()}
+              onKeyDown={(e) => e.key === 'Enter' && search(query)}
             />
-            <button className="btn-secondary" onClick={search} disabled={searching}>
+            <button className="btn-secondary" onClick={() => search(query)} disabled={searching}>
               {searching ? 'Searching…' : 'Search'}
             </button>
           </div>

@@ -41,11 +41,20 @@ export function TripHeader() {
         </div>
       ) : (
         <div className="trip-header-view" onClick={() => setEditing(true)}>
-          <h1>{trip.name}</h1>
+          <div className="trip-header-row">
+            <h1>{trip.name}</h1>
+            <button
+              className="trip-edit-icon-btn"
+              aria-label="Edit trip"
+              onClick={(e) => {
+                e.stopPropagation()
+                setEditing(true)
+              }}
+            >
+              ✎
+            </button>
+          </div>
           {trip.description && <p className="trip-description">{trip.description}</p>}
-          <button className="btn-ghost trip-edit-btn" onClick={() => setEditing(true)}>
-            Edit trip
-          </button>
         </div>
       )}
     </header>
