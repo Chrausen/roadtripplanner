@@ -698,6 +698,13 @@
   color: var(--ink-soft);
 }
 
+.open-in-maps-link {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--accent, #1a73e8);
+}
+
 .map-search-bar {
   flex: 1 1 240px;
   max-width: 360px;

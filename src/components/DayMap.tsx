@@ -42,6 +42,24 @@ const DEFAULT_ZOOM = 9
 // Roughly shows a 10km radius around the center point.
 const FOCUS_ZOOM = 12
 
+function googleMapsUrl(coords: Coordinates, name?: string) {
+  const query = name ? `${name} @${coords.lat},${coords.lng}` : `${coords.lat},${coords.lng}`
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
+
+function OpenInMapsLink({ coords, name }: { coords: Coordinates; name?: string }) {
+  return (
+    <a
+      className="open-in-maps-link"
+      href={googleMapsUrl(coords, name)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open in Maps
+    </a>
+  )
+}
+
 function dotIcon(color: string) {
   return L.divIcon({
     className: 'pin-icon',
@@ -262,6 +280,23 @@ export function DayMap({ day }: { day: Day }) {
   const [newKind, setNewKind] = useState<'place' | 'activity'>('place')
   const [pendingStart, setPendingStart] = useState<Coordinates | null>(null)
   const [menu, setMenu] = useState<MapMenuState | null>(null)
+  const [myLocation, setMyLocation] = useState<Coordinates | null>(null)
+  const [locating, setLocating] = useState(false)
+
+  function handleLocateMe() {
+    if (!('geolocation' in navigator)) return
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setMyLocation(coords)
+        focusOnMap(coords)
+        setLocating(false)
+      },
+      () => setLocating(false),
+      { timeout: 8000 }
+    )
+  }
 
   const points: MapPoint[] = useMemo(() => {
     const placePoints = day.places
@@ -358,6 +393,9 @@ export function DayMap({ day }: { day: Day }) {
             focusOnMap(coords)
           }}
         />
+        <button type="button" className="btn-ghost" onClick={handleLocateMe} disabled={locating}>
+          {locating ? 'Locating…' : 'My location'}
+        </button>
         <span className="map-hint mono">Right-click: open the route/pin menu</span>
       </div>
 
@@ -398,6 +436,7 @@ export function DayMap({ day }: { day: Day }) {
               <Popup>
                 <strong>{p.name}</strong>
                 {p.notes && <p>{p.notes}</p>}
+                <OpenInMapsLink coords={p.coords} name={p.name} />
               </Popup>
             </Marker>
           ))}
@@ -411,12 +450,24 @@ export function DayMap({ day }: { day: Day }) {
               position={[searchMarker.coords.lat, searchMarker.coords.lng]}
               icon={endpointIcon('?')}
             >
-              <Popup>{searchMarker.name}</Popup>
+              <Popup>
+                {searchMarker.name}
+                <OpenInMapsLink coords={searchMarker.coords} name={searchMarker.name} />
+              </Popup>
             </Marker>
           )}
 
           {pendingStart && (
             <Marker position={[pendingStart.lat, pendingStart.lng]} icon={endpointIcon('A')} />
+          )}
+
+          {myLocation && (
+            <Marker position={[myLocation.lat, myLocation.lng]} icon={dotIcon('#1a73e8')}>
+              <Popup>
+                You are here
+                <OpenInMapsLink coords={myLocation} />
+              </Popup>
+            </Marker>
           )}
 
         {drawnRoutes.map((route, i) => {
@@ -433,9 +484,16 @@ export function DayMap({ day }: { day: Day }) {
                   {route.distanceKm != null && ` · ${route.distanceKm.toFixed(1)} km`}
                 </Tooltip>
               </Polyline>
-              <Marker position={[route.fromCoords!.lat, route.fromCoords!.lng]} icon={endpointIcon('A')} />
+              <Marker position={[route.fromCoords!.lat, route.fromCoords!.lng]} icon={endpointIcon('A')}>
+                <Popup>
+                  <strong>{route.from || 'Start'}</strong>
+                  <OpenInMapsLink coords={route.fromCoords!} name={route.from} />
+                </Popup>
+              </Marker>
               <Marker position={[route.toCoords!.lat, route.toCoords!.lng]} icon={endpointIcon('B')}>
                 <Popup>
+                  <strong>{route.to || 'End'}</strong>
+                  <OpenInMapsLink coords={route.toCoords!} name={route.to} />
                   <button className="btn-danger" onClick={() => deleteRoute(day.id, route.id)}>
                     Delete this route
                   </button>
