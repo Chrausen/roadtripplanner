@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   MapContainer,
   TileLayer,
@@ -12,7 +12,7 @@ import {
 import L from 'leaflet'
 import type { Day, Coordinates, PlaceType, ActivityType } from '../types'
 import { useTripStore } from '../store'
-import { fetchOsrmRoute, formatDuration, reverseGeocode } from '../api'
+import { fetchOsrmRoute, formatDuration, geocodeSearch, reverseGeocode, type GeocodeResult } from '../api'
 
 const PLACE_COLORS: Record<PlaceType, string> = {
   sight: '#188038',
@@ -192,20 +192,59 @@ function RadialMapMenu({
   )
 }
 
-function ClickToAdd({
-  active,
-  onPick,
-}: {
-  active: boolean
-  onPick: (coords: Coordinates) => void
-}) {
-  useMapEvents({
-    click(e) {
-      if (!active) return
-      onPick({ lat: e.latlng.lat, lng: e.latlng.lng })
-    },
-  })
-  return null
+function MapSearchBar({ onPick }: { onPick: (coords: Coordinates, name: string) => void }) {
+  const [text, setText] = useState('')
+  const [results, setResults] = useState<GeocodeResult[]>([])
+  const [open, setOpen] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function handleType(value: string) {
+    setText(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (value.trim().length < 3) {
+      setResults([])
+      return
+    }
+    debounceRef.current = setTimeout(async () => {
+      const r = await geocodeSearch(value)
+      setResults(r)
+      setOpen(true)
+    }, 350)
+  }
+
+  function pick(r: GeocodeResult) {
+    onPick({ lat: r.lat, lng: r.lng }, r.name)
+    setText(r.name)
+    setResults([])
+    setOpen(false)
+  }
+
+  return (
+    <div className="map-search-bar address-search">
+      <input
+        value={text}
+        placeholder="Search for a location…"
+        onChange={(e) => handleType(e.target.value)}
+        onFocus={() => results.length > 0 && setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+      />
+      {open && results.length > 0 && (
+        <ul className="address-suggestions">
+          {results.map((r, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                className="btn-ghost address-suggestion-btn"
+                onClick={() => pick(r)}
+              >
+                {r.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 export function DayMap({ day }: { day: Day }) {
@@ -214,8 +253,11 @@ export function DayMap({ day }: { day: Day }) {
   const addPlace = useTripStore((s) => s.addPlace)
   const addActivity = useTripStore((s) => s.addActivity)
   const focusRequest = useTripStore((s) => s.focusRequest)
-  const [addMode, setAddMode] = useState(false)
+  const focusOnMap = useTripStore((s) => s.focusOnMap)
   const [pickedCoords, setPickedCoords] = useState<Coordinates | null>(null)
+  const [searchMarker, setSearchMarker] = useState<{ coords: Coordinates; name: string } | null>(
+    null
+  )
   const [newName, setNewName] = useState('')
   const [newKind, setNewKind] = useState<'place' | 'activity'>('place')
   const [pendingStart, setPendingStart] = useState<Coordinates | null>(null)
@@ -310,15 +352,12 @@ export function DayMap({ day }: { day: Day }) {
   return (
     <div className="day-map-wrap">
       <div className="map-toolbar">
-        <button
-          className={addMode ? 'btn-primary' : 'btn-secondary'}
-          onClick={() => {
-            setAddMode((v) => !v)
-            setPickedCoords(null)
+        <MapSearchBar
+          onPick={(coords, name) => {
+            setSearchMarker({ coords, name })
+            focusOnMap(coords)
           }}
-        >
-          {addMode ? 'Click map to add pin…' : 'Click to add mode'}
-        </button>
+        />
         <span className="map-hint mono">Right-click: open the route/pin menu</span>
       </div>
 
@@ -352,7 +391,6 @@ export function DayMap({ day }: { day: Day }) {
           />
           <FitBounds points={points} routeEndpoints={routeEndpoints} />
           <FocusHandler focusRequest={focusRequest} />
-          <ClickToAdd active={addMode} onPick={setPickedCoords} />
           <MapContextMenu onOpen={(coords, point) => setMenu({ coords, point })} onClose={() => setMenu(null)} />
 
           {points.map((p) => (
@@ -366,6 +404,15 @@ export function DayMap({ day }: { day: Day }) {
 
           {pickedCoords && (
             <Marker position={[pickedCoords.lat, pickedCoords.lng]} icon={endpointIcon('+')} />
+          )}
+
+          {searchMarker && (
+            <Marker
+              position={[searchMarker.coords.lat, searchMarker.coords.lng]}
+              icon={endpointIcon('?')}
+            >
+              <Popup>{searchMarker.name}</Popup>
+            </Marker>
           )}
 
           {pendingStart && (
